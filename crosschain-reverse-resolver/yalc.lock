@@ -1,0 +1,18 @@
+{
+  "version": "v1",
+  "packages": {
+    "@ensdomains/l1-verifier": {
+      "signature": "547db8514aa511423fcfa56364672582",
+      "file": true
+    },
+    "@ensdomains/l1-gateway": {
+      "signature": "33e66e1d10a4035e5a30fb1658090ae9",
+      "file": true,
+      "replaced": "workspace:*"
+    },
+    "@ensdomains/evm-gateway": {
+      "signature": "53d54cf29041349acb87e1322a9ad5b5",
+      "file": true
+    }
+  }
+}
