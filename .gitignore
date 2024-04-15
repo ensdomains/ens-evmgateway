@@ -1,0 +1,15 @@
+*.log
+.DS_Store
+node_modules
+dist
+_types
+_esm
+_cjs
+.dev.vars
+op-verifier/deployments/opDevnetL1
+op-verifier/deployments/opDevnetL2
+artifacts
+cache
+.env
+typechain-types
+.wrangler

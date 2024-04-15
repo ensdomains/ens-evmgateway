@@ -1,0 +1,58 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "A generic gateway and smart contract library for cross-chain data retrieval",
+  "workspaces": [
+    "evm-gateway",
+    "l1-gateway",
+    "op-gateway",
+    "arb-gateway",
+    "evm-verifier",
+    "l1-verifier",
+    "op-verifier",
+    "arb-verifier",
+    "crosschain-reverse-resolver",
+    "crosschain-resolver"
+  ],
+  "scripts": {
+    "env": "env",
+    "workspace": "bun ./scripts/workspace.ts",
+    "build": "bun run workspace evm-gateway build && bun run workspace -evm-gateway build",
+    "test": "bun run workspace l1-verifier test && bun run workspace crosschain-resolver test && bun run workspace crosschain-reverse-resolver test",
+    "lint": "bun run workspace all lint",
+    "prepare": "husky install"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "bun run workspace all lint"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Arachnid/evm-l2-gateway.git"
+  },
+  "author": "@smartcontractkit",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arachnid/evm-l2-gateway/issues"
+  },
+  "homepage": "https://github.com/arachnid/evm-l2-gateway#readme",
+  "resolutions": {
+    "@eth-optimism/sdk/**/ethers": "^5.7.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "bun-types": "^1.0.7",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^6.0.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@ensdomains/ccip-read-cf-worker": "^0.0.3",
+    "@eth-optimism/sdk": "^3.1.4"
+  }
+}
