@@ -5,12 +5,8 @@
   "workspaces": [
     "evm-gateway",
     "l1-gateway",
-    "op-gateway",
-    "arb-gateway",
     "evm-verifier",
     "l1-verifier",
-    "op-verifier",
-    "arb-verifier",
     "crosschain-reverse-resolver",
     "crosschain-resolver"
   ],
