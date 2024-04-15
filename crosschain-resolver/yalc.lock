@@ -13,6 +13,11 @@
     "@ensdomains/evm-gateway": {
       "signature": "53d54cf29041349acb87e1322a9ad5b5",
       "file": true
+    },
+    "@ensdomains/evm-verifier": {
+      "signature": "edf310727548ba31fa41477742fdc1b8",
+      "file": true,
+      "replaced": "^0.1.0"
     }
   }
 }

@@ -3,7 +3,6 @@
   "type": "module",
   "description": "A generic gateway and smart contract library for cross-chain data retrieval",
   "workspaces": [
-    "evm-verifier",
     "crosschain-reverse-resolver",
     "crosschain-resolver"
   ],

@@ -48,7 +48,7 @@
     "@ensdomains/address-encoder": "^0.2.22",
     "@ensdomains/ens-contracts": "ensdomains/ens-contracts#feature/crosschain-resolver-with-reverse-registrar",
     "@ensdomains/evm-gateway": "file:.yalc/@ensdomains/evm-gateway",
-    "@ensdomains/evm-verifier": "^0.1.0",
+    "@ensdomains/evm-verifier": "file:.yalc/@ensdomains/evm-verifier",
     "@ensdomains/l1-verifier": "file:.yalc/@ensdomains/l1-verifier",
     "@eth-optimism/contracts": "^0.6.0"
   }
