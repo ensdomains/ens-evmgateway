@@ -20,14 +20,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Arachnid/evm-l2-gateway.git"
+    "url": "https://github.com/ensdomains/evm-l2-gateway.git"
   },
   "author": "@smartcontractkit",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/arachnid/evm-l2-gateway/issues"
+    "url": "https://github.com/ensdomains/evm-l2-gateway/issues"
   },
-  "homepage": "https://github.com/arachnid/evm-l2-gateway#readme",
+  "homepage": "https://github.com/ensdomains/evm-l2-gateway#readme",
   "resolutions": {
     "@eth-optimism/sdk/**/ethers": "^5.7.0"
   },
