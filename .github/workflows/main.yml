@@ -1,0 +1,53 @@
+name: CI
+on: [push]
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: ['18.x', '20.x']
+        os: [ubuntu-latest, macOS-latest]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Bun 1.0.7
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.0.7
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Build
+        run: bun run build
+
+      - name: Test (uses node internally)
+        run: bun run test
+
+  build:
+    name: Build and lint with Bun 1.0.7
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Bun 1.0.7
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: 1.0.7
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+
+      - name: Build
+        run: bun run build
+
+      - name: Lint
+        run: bun run lint
