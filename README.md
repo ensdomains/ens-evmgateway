@@ -1,6 +1,6 @@
-# ENS CCIP-Read Gateway
+# ENS l2 contracts
 
-This repository implements ENS contracts built on top of [evmgateway]()
+This repository implements ENS contracts built on top of [evmgateway](https://github.com/ensdomains/evmgateway)
 
 ## Packages
 
