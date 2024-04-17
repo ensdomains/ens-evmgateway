@@ -9,6 +9,7 @@
   "scripts": {
     "env": "env",
     "workspace": "bun ./scripts/workspace.ts",
+    "build": "bun run workspace crosschain-resolver build && bun run workspace crosschain-reverse-resolver build",
     "test": "bun run workspace crosschain-resolver test && bun run workspace crosschain-reverse-resolver test",
     "lint": "bun run workspace all lint",
     "prepare": "husky install"
