@@ -1,50 +1,29 @@
 # @ensdomains/crosschain-resolver
 
-A resolver contract that is built on top of [evm-verifier](https://github.com/ensdomains/evmgateway/tree/main/evm-verifier).
+A l1 resolver contract that is built on top of [evm-verifier](https://github.com/ensdomains/evmgateway/tree/main/evm-verifier) and verify l2 data.
 
-## Deploying (Sepolia)
+## Deployment
 
-Before deploying l1 contracts, deploy l2 contracts on https://github.com/ensdomains/ens-contracts
+Pior to 
+[EVM Gateway](https://github.com/ensdomains/evmgateway) implements a generic CCIP-Read gateway framework for fetching state proofs of data on other EVM chains. You can either deploy your own verifier and host the gateway, or use the preexising ones([OP, Base](https://github.com/ensdomains/evmgateway/tree/main/op-verifier), [Arbitrum](https://github.com/ensdomains/evmgateway/tree/main/arb-verifier) ).
 
-```
-git clone https://github.com/ensdomains/ens-contracts
-cd ens-contracts
-DEPLOYER_KEY=$DEPLOYER_KEY ETHERSCAN_API_KEY=$ETHERSCAN_API_KEY npx hardhat deploy --tags l2 --network optimismSepolia/baseSepolia/arbSepolia
-```
 
-Once l2 contracts are deployed, create `.env` and set the following variables
+Once EVM verifier contracts are deployed, create `.env` and set the following variables (use `VERIFIER_ADDRESS` to specify the chain specific verifier)
 
 - DEPLOYER_PRIVATE_KEY
 - L1_PROVIDER_URL
 - L2_PROVIDER_URL
 - L1_ETHERSCAN_API_KEY
-- VERIFIER_ADDRESS
-- ENS_ADDRESS
-- WRAPPER_ADDRESS
-- L2_GRAPHQL_URL
+- VERIFIER_ADDRESS = Address deployed via `-verifier` repo on `evmgateway`
+- ENS_ADDRESS = [ENS Registry address](https://docs.ens.domains/learn/deployments#deployments)
+- WRAPPER_ADDRESS = [ENS Wrapper address](https://docs.ens.domains/learn/deployments#deployments)
+- L2_GRAPHQL_URL = Deploy subgraph with [ens-l2-delegatable-resolver-subgraph](https://github.com/makoto/ens-l2-delegatable-resolver-subgraph)
+
 ```
 bun run hardhat deploy --network sepolia
 ```
 
-## Deployments
-
-NOTE: Each name owner will be deploying a dedicated resolver for the name and their subnames.
-You can predict the resolver address by calling the predictAddress
-
-```
-DelegatableResolverFactory.predictAddress(ownerAddress)
-```
-
-The function is an external function and you cannot call read function from etherscan.
-To work around, you may want to define the abi function as view function
-
-```
-const abi = [
-  "function predictAddress(address) view returns (address)"
-]
-const l2Factory = new ethers.Contract(L2_RESOLVER_FACTORY_ADDRESS, abi, l2provider);
-const l2resolverAddress = await l2Factory.predictAddress(ETH_ADDRESS)
-```
+## Deployed addresses
 
 ### OP on Sepolia
 
@@ -82,7 +61,9 @@ const l2resolverAddress = await l2Factory.predictAddress(ETH_ADDRESS)
 
 ### Move resolver to L2
 
-On L1
+Before starting, deploy [L2ResolverFactory](https://github.com/ensdomains/ens-contracts/blob/7f8d1f9f9a2ec4be2ef53956c8ad6c88f3bb16d9/README.md#how-to-deploy-l2-contracts)
+
+Once deployed, set the l1 resolver to the name, derive l2 resolver address using `DelegatableResolverFactory.predictAddress`, then set it as a target
 
 ```js
 // On L1
@@ -122,7 +103,7 @@ L1_PROVIDER_URL=$L1_PROVIDER_URL L1_ETHERSCAN_API_KEY=$L1_ETHERSCAN_API_KEY L2_E
 
 ### Issue subname to L2
 
-Assuming you have already moved the parent name to a l2, 
+Assuming you have already moved the parent name to a l2, `approve` subname to a user (aka `operator`)
 
 
 ```js
@@ -141,6 +122,6 @@ Using the script
 OPERATOR_ADDRESS=$OPERATOR_ADDRESS DEPLOYER_PRIVATE_KEY=$DEPLOYER_PRIVATE_KEY L1_PROVIDER_URL=$L1_PROVIDER_URL L2_PROVIDER_URL=$L2_PROVIDER_URL L1_ETHERSCAN_API_KEY=$L1_ETHERSCAN_API_KEY L2_ETHERSCAN_API_KEY=$L2_ETHERSCAN_API_KEY L2_PROVIDER_URL=$L2_PROVIDER_URL L2_RESOLVER_FACTORY_ADDRESS=$L2_RESOLVER_FACTORY_ADDRESS ENS_SUBNAME=$ENS_SUBNAME yarn approve --network optimismSepolia/baseSepolia/arbSepolia
 ```
 
-Once done, set addrss of the subname from the operator, wait 10~20 min, then query the subname on L1
+Once done, set addrss of the subname from the `operator`, wait 10~20 min (depending on the duration of l2 chain commiting the latest stateroot into l1), then query the subname on L1
 
 
