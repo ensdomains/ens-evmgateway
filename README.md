@@ -15,9 +15,15 @@ A resolver contract that is built on top of [evm-verifier](https://github.com/en
 A reverse resolver contract that is built on top of [evm-verifier](https://github.com/ensdomains/evmgateway/tree/main/evm-verifier).
 
 
-### Demo app
+## Demo app
 
 https://github.com/makoto/my-l2-app-v2
+
+## Dependencies
+
+- [ens-contracts](https://github.com/ensdomains/ens-contracts/tree/feature/crosschain-resolver-with-reverse-registrar)
+- [evmgateway](https://github.com/ensdomains/evmgateway/pull/38)
+- [l2 subgraph](https://github.com/makoto/ens-l2-delegatable-resolver-subgraph)
 
 ## How to setup locally
 
