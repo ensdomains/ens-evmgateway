@@ -15,7 +15,7 @@ export const main = async () => {
   const namespace       = process.env.REVERSE_NAMESPACE;
   const L1_PROVIDER_URL = process.env.L1_PROVIDER_URL;
   const L2_PROVIDER_URL = process.env.L2_PROVIDER_URL;
-  const L2_REVERSE_REGISTRAR_ADDRESS = process.env.L2_REVERSE_REGISTRAR_ADDRESS
+  const L2_REVERSE_RESOLVER_ADDRESS = process.env.L2_REVERSE_RESOLVER_ADDRESS
   const DEFAULT_REVERSE_RESOLVER_ADDRESS = process.env.DEFAULT_REVERSE_RESOLVER_ADDRESS
   const ETH_ADDRESS     = process.env.ETH_ADDRESS;
   const provider        = new ethers.JsonRpcProvider(L1_PROVIDER_URL);
@@ -26,9 +26,9 @@ export const main = async () => {
   
   console.log({namespace, ETH_ADDRESS, name, encodedname,reversenode})
   const reverseresolver = await provider.getResolver(namespace);
-  console.log({L2_PROVIDER_URL, L2_REVERSE_REGISTRAR_ADDRESS})
-  if (L2_PROVIDER_URL && L2_REVERSE_REGISTRAR_ADDRESS){
-    const l2resolver = new ethers.Contract(L2_REVERSE_REGISTRAR_ADDRESS, abi, l2provider);
+  console.log({L2_PROVIDER_URL, L2_REVERSE_RESOLVER_ADDRESS})
+  if (L2_PROVIDER_URL && L2_REVERSE_RESOLVER_ADDRESS){
+    const l2resolver = new ethers.Contract(L2_REVERSE_RESOLVER_ADDRESS, abi, l2provider);
     console.log(`l2: Reverse node for ${name} is set to `, await l2resolver.name(reversenode))
   }
   if(DEFAULT_REVERSE_RESOLVER_ADDRESS){
