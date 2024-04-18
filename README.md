@@ -15,6 +15,10 @@ A resolver contract that is built on top of [evm-verifier](https://github.com/en
 A reverse resolver contract that is built on top of [evm-verifier](https://github.com/ensdomains/evmgateway/tree/main/evm-verifier).
 
 
+### Demo app
+
+https://github.com/makoto/my-l2-app-v2
+
 ## How to setup locally
 
 ```
