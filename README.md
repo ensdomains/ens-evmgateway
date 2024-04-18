@@ -22,7 +22,7 @@ https://github.com/makoto/my-l2-app-v2
 ## Dependencies
 
 - [ens-contracts](https://github.com/ensdomains/ens-contracts/tree/feature/crosschain-resolver-with-reverse-registrar)
-- [evmgateway](https://github.com/ensdomains/evmgateway/pull/38)
+- [evmgateway](https://github.com/ensdomains/evmgateway/pull/39)
 - [l2 subgraph](https://github.com/makoto/ens-l2-delegatable-resolver-subgraph)
 
 ## How to setup locally
