@@ -18,9 +18,7 @@ A reverse resolver contract that is built on top of [evm-verifier](https://githu
 ## How to setup locally
 
 ```
-gh repo clone ensdomains/evmgateway
-bun install # `@ensdomains/@ensdomains` not found error will be thrown
-bun run workspace evm-gateway build
+gh repo clone ensdomains/ens-l2-contracts
 bun install
 bun run test
 ```
