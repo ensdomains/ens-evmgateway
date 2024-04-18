@@ -2,36 +2,34 @@
 
 A reverse resolver contract that is built on top of evm-verifier.
 
-## Deploying (Sepolia)
+## Deployment
 
-Before deploying l1 contracts, deploy l2 contracts on https://github.com/ensdomains/ens-contracts
+Pior to deploying ENS gateway contracts,
+deploy your own [EVM Gateway](https://github.com/ensdomains/evmgateway) verifier and host the gateway, or use the preexising ones([OP, Base](https://github.com/ensdomains/evmgateway/tree/main/op-verifier), [Arbitrum](https://github.com/ensdomains/evmgateway/tree/main/arb-verifier) ).
 
-```
-git clone https://github.com/ensdomains/ens-contracts
-cd ens-contracts
-DEPLOYER_KEY=$DEPLOYER_KEY ETHERSCAN_API_KEY=$ETHERSCAN_API_KEY npx hardhat deploy --tags l2 --network optimismSepolia/baseSepolia/arbSepolia
-```
 
-Once l2 contracts are deployed, create `.env` and set the following variables
+Once EVM verifier contracts are deployed, deploy [L2ReverseResolver](https://github.com/ensdomains/ens-contracts/blob/7f8d1f9f9a2ec4be2ef53956c8ad6c88f3bb16d9/README.md#how-to-deploy-l2-contracts) (You can skip this section if you have already deployed l2 contracts as part of setting up `crosschain-resolver`).
 
-Create `.env` and set the following variables
+
+Once all complete, create `.env` and set the following variables (use `VERIFIER_ADDRESS` to specify the chain specific verifier)
 
 - DEPLOYER_PRIVATE_KEY
 - L1_PROVIDER_URL
 - L2_PROVIDER_URL
 - L1_ETHERSCAN_API_KEY
 - L2_ETHERSCAN_API_KEY
-- VERIFIER_ADDRESS
-- REVERSE_NAMESPACE
-- L2_REVERSE_REGISTRAR_ADDRESS
+- VERIFIER_ADDRESS = Address deployed via `-verifier` repo on `evmgateway`
+- REVERSE_NAMESPACE =  A Reverse resolver contract, following the [Evm reverse resolution draft ENSIP](https://github.com/ensdomains/docs/pull/157) (eg: `2158639068.reverse` for the OP sepolia namespace)
+- L2_REVERSE_RESOLVER_ADDRESS = l2 Reverse resolver address
 - CHAIN_NAME (Op/Base/Arb)
+
 ```
 bun run hardhat deploy --network sepolia
 ```
 
 After deployment is complete, set the rersolver of $REVERSE_NAMESPACE to L1ReverseResolver contract address
 
-## Deployments
+## Deployed addresses
 
 ### L1
 
@@ -113,7 +111,7 @@ const registrar = registrar.setName(name)
 
 , try it directly from [etherscan](https://goerli.etherscan.io/address/0xeEB5832Ea8732f7EF06d468E40F562c9D7347795), or run the script
 ```
-DEPLOYER_PRIVATE_KEY=$DEPLOYER_PRIVATE_KEY REVERSE_NAMESPACE=$REVERSE_NAMESPACE L2_PROVIDER_URL=$L2_PROVIDER_URL L2_REVERSE_REGISTRAR_ADDRESS=$L2_REVERSE_REGISTRAR_ADDRESS ENS_NAME=$ENS_NAME yarn setname --network optimismSepolia
+DEPLOYER_PRIVATE_KEY=$DEPLOYER_PRIVATE_KEY REVERSE_NAMESPACE=$REVERSE_NAMESPACE L2_PROVIDER_URL=$L2_PROVIDER_URL L2_REVERSE_RESOLVER_ADDRESS=$L2_REVERSE_RESOLVER_ADDRESS ENS_NAME=$ENS_NAME yarn setname --network optimismSepolia
 ```
 
 ### Query Primary name on L1
@@ -142,5 +140,5 @@ console.log(await l1resolver.name(reversenode, {enableCcipRead:true}))
 Using the script
 
 ```
-L1_PROVIDER_URL=$L1_PROVIDER_URL REVERSE_NAMESPACE=$REVERSE_NAMESPACE L2_REVERSE_REGISTRAR_ADDRESS=$L2_REVERSE_REGISTRAR_ADDRESS ETH_ADDRESS=$ETH_ADDRESS yarn getname
+L1_PROVIDER_URL=$L1_PROVIDER_URL REVERSE_NAMESPACE=$REVERSE_NAMESPACE L2_REVERSE_RESOLVER_ADDRESS=$L2_REVERSE_RESOLVER_ADDRESS ETH_ADDRESS=$ETH_ADDRESS yarn getname
 ```

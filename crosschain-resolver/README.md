@@ -4,8 +4,8 @@ A l1 resolver contract that is built on top of [evm-verifier](https://github.com
 
 ## Deployment
 
-Pior to 
-[EVM Gateway](https://github.com/ensdomains/evmgateway) implements a generic CCIP-Read gateway framework for fetching state proofs of data on other EVM chains. You can either deploy your own verifier and host the gateway, or use the preexising ones([OP, Base](https://github.com/ensdomains/evmgateway/tree/main/op-verifier), [Arbitrum](https://github.com/ensdomains/evmgateway/tree/main/arb-verifier) ).
+Pior to deploying ENS gateway contracts,
+deploy your own [EVM Gateway](https://github.com/ensdomains/evmgateway) verifier and host the gateway, or use the preexising ones([OP, Base](https://github.com/ensdomains/evmgateway/tree/main/op-verifier), [Arbitrum](https://github.com/ensdomains/evmgateway/tree/main/arb-verifier) ).
 
 
 Once EVM verifier contracts are deployed, create `.env` and set the following variables (use `VERIFIER_ADDRESS` to specify the chain specific verifier)
