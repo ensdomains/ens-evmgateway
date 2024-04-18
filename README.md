@@ -1,6 +1,6 @@
-# ENS l2 contracts
+# ENS evmgateway
 
-This repository implements ENS contracts built on top of [evmgateway](https://github.com/ensdomains/evmgateway)
+This repository implements ENS gateway contracts built on top of [evmgateway](https://github.com/ensdomains/evmgateway)
 
 ## Packages
 
@@ -26,6 +26,7 @@ gh repo clone ensdomains/ens-l2-contracts
 bun install
 bun run test
 ```
+
 
 ## Troubleshooting
 
