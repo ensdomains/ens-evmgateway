@@ -5,7 +5,4 @@ import '@ensdomains/ens-contracts/contracts/resolvers/profiles/IVersionableResol
 // ┌────────────────────┬───────────────────┬──────────────┬
 // │      contract      │  state_variable   │ storage_slot │
 // ├────────────────────┼───────────────────┼──────────────┼
-// │ L2ReverseResolver  │    lastUpdated    │      0       │
-// │ L2ReverseResolver  │ versionable_texts │      1       │
-// │ L2ReverseResolver  │ versionable_names │      2       │
-// │ L2ReverseResolver  │  recordVersions   │      3       │
+// │ L2ReverseResolver  │       names       │      0       │

@@ -1,31 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+
 import {EVMFetcher} from '@ensdomains/evm-verifier/contracts/EVMFetcher.sol';
 import {EVMFetchTarget} from '@ensdomains/evm-verifier/contracts/EVMFetchTarget.sol';
 import {IEVMVerifier} from '@ensdomains/evm-verifier/contracts/IEVMVerifier.sol';
-import "@ensdomains/ens-contracts/contracts/resolvers/profiles/INameResolver.sol";
+import {INameResolver} from "@ensdomains/ens-contracts/contracts/resolvers/profiles/INameResolver.sol";
 import "@ensdomains/ens-contracts/contracts/resolvers/profiles/ITextResolver.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@ensdomains/ens-contracts/contracts/utils/HexUtils.sol";
 import "@ensdomains/ens-contracts/contracts/resolvers/profiles/IExtendedResolver.sol";
+import "@ensdomains/ens-contracts/contracts/registry/ENS.sol";
+
 import "./IDefaultReverseResolver.sol";
 
 contract L1ReverseResolver is EVMFetchTarget, IExtendedResolver, ERC165 {
     using EVMFetcher for EVMFetcher.EVMFetchRequest;
-    IEVMVerifier immutable verifier;
-    address immutable target;
-    IDefaultReverseResolver immutable defaultReverseResolver;
-    uint256 constant VERSIONABLE_TEXTS_SLOT = 1;
-    uint256 constant VERSIONABLE_NAME_SLOT = 2;
-    uint256 constant RECORD_VERSIONS_SLOT = 3;
-    uint256 constant ADDRESS_LENGTH = 40;
     using HexUtils for bytes;
 
-    constructor(IEVMVerifier _verifier, address _target, IDefaultReverseResolver _defaultReverseResolver ) {
+    ENS immutable ens;
+    IEVMVerifier immutable verifier;
+    address immutable target;
+
+    uint256 constant NAMES_SLOT = 0;
+    uint256 constant ADDRESS_LENGTH = 40;
+
+    constructor(ENS _ens, IEVMVerifier _verifier, address _target) {
+        ens = _ens;
         verifier = _verifier;
         target = _target;
-        defaultReverseResolver = _defaultReverseResolver;
     }
 
     /** 
@@ -41,18 +44,11 @@ contract L1ReverseResolver is EVMFetchTarget, IExtendedResolver, ERC165 {
             (bytes32 node) = abi.decode(data[4:], (bytes32));
             return bytes(_name(node, addr));
         }
-        if (selector == ITextResolver.text.selector) {
-            (bytes32 node, string memory key) = abi.decode(data[4:], (bytes32, string));
-            return bytes(_text(node, key, addr));
-        }
     }
 
     function _name(bytes32 node, address addr) private view returns (string memory) {
         EVMFetcher.newFetchRequest(verifier, target)
-            .getStatic(RECORD_VERSIONS_SLOT)
-              .element(node)
-            .getDynamic(VERSIONABLE_NAME_SLOT)
-              .ref(0)
+            .getDynamic(NAMES_SLOT)
               .element(node)
             .fetch(this.nameCallback.selector, abi.encode(addr));
     }
@@ -60,40 +56,18 @@ contract L1ReverseResolver is EVMFetchTarget, IExtendedResolver, ERC165 {
     function nameCallback(
         bytes[] memory values,
         bytes memory callbackdata
-    ) public view returns (string memory) {        
-        if (values[1].length == 0 ) {
+    ) public view returns (bytes memory) {        
+        if (values[0].length == 0 ) {
             (address addr) = abi.decode(callbackdata, (address));
-            return defaultReverseResolver.name(addr);
+            return abi.encode(getDefaultNameFromAddr(addr));
         } else {
-            return string(values[1]);
+            return abi.encode(values[0]);
         }
     }
 
-    function _text(
-        bytes32 node,
-        string memory key,
-        address addr
-    ) private view returns (string memory) {
-        EVMFetcher.newFetchRequest(verifier, target)
-            .getStatic(RECORD_VERSIONS_SLOT)
-              .element(node)
-            .getDynamic(VERSIONABLE_TEXTS_SLOT)
-              .ref(0)
-              .element(node)
-              .element(key)
-            .fetch(this.textCallback.selector, abi.encode(addr, key));
-    }
-
-    function textCallback(
-        bytes[] memory values,
-        bytes memory callbackdata
-    ) public view returns (string memory) {
-        if (values[1].length == 0 ) {
-            (address addr, string memory key) = abi.decode(callbackdata, (address, string));
-            return defaultReverseResolver.text(addr, key);
-        } else {
-            return string(values[1]);
-        }
+    function getDefaultNameFromAddr(address addr) internal view returns (string memory) {
+        IDefaultReverseResolver defaultReverseResolver = IDefaultReverseResolver(ens.resolver(DEFAULT_REVERSE_NODE));
+        return defaultReverseResolver.nameForAddr(addr);
     }
 
     function supportsInterface(
