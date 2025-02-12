@@ -46,5 +46,8 @@
   "dependencies": {
     "@ensdomains/ccip-read-cf-worker": "^0.0.3",
     "@eth-optimism/sdk": "^3.1.4"
+  },
+  "patchedDependencies": {
+    "hardhat-deploy@0.12.4": "patches/hardhat-deploy@0.12.4.patch"
   }
 }

@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["./scripts", "./test", "./artifacts", "./tasks"],
+  "include": ["./scripts", "./test/**/*", "./artifacts", "./tasks", "deploy"],
   "files": ["hardhat.config.cts"],
   "compilerOptions": {
     "esModuleInterop": true,
@@ -10,7 +10,9 @@
     "module": "Node16",
     "moduleDetection": "force",
     "moduleResolution": "NodeNext",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true
   },
   "ts-node": {
     "experimentalResolver": true,

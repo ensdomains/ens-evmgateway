@@ -6,7 +6,9 @@
   "scripts": {
     "hh": "NODE_OPTIONS='--experimental-loader ts-node/esm/transpile-only' hardhat",
     "build": "echo 'building crosschain-reverse-resolver' && bun hh compile",
-    "test": "node scripts/test.js",
+    "test:e2e": "node scripts/test.js",
+    "test:unit": "bun hh test",
+    "test": "bun test:unit && bun test:e2e",
     "storage": "hardhat check",
     "setname": "hardhat run scripts/setname.ts",
     "setdefaultname": "hardhat run scripts/setdefaultname.ts --network sepolia",
@@ -15,18 +17,24 @@
     "lint": "exit 0"
   },
   "devDependencies": {
+    "@ensdomains/address-encoder": "^1.1.2",
     "@ensdomains/ccip-read-router": "^0.0.5",
-    "@ensdomains/hardhat-chai-matchers-viem": "^0.0.8",
-    "@ensdomains/l1-gateway": "0.0.0-feat-viem.20240822T231724706",
+    "@ensdomains/hardhat-chai-matchers-viem": "^0.0.9",
+    "@ensdomains/hardhat-toolbox-viem-extended": "0.0.3",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "@nomicfoundation/hardhat-viem": "^2.0.6",
+    "@openzeppelin/contracts": "5.1.0",
+    "@resolverworks/ezccip": "0.0.20",
     "@viem/anvil": "^0.0.10",
     "@vitest/expect": "1.6.0",
     "@whatwg-node/server": "^0.9.49",
     "chai": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
     "express": "^4.18.2",
     "ganache": "^7.9.1",
     "hardhat": "^2.17.4",
-    "hardhat-deploy": "^0.11.43",
+    "hardhat-deploy": "^0.12.4",
     "hardhat-deploy-ethers": "^0.4.1",
     "hardhat-gas-reporter": "^1.0.8",
     "hardhat-storage-layout": "^0.1.7",
@@ -38,10 +46,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ensdomains/ens-contracts": "ensdomains/ens-contracts#feature/simplify-reverse-resolver",
-    "@ensdomains/evm-gateway": "0.0.0-feat-viem.20240822T231724706",
-    "@ensdomains/evm-verifier": "0.0.0-feat-viem.20240822T231724706",
-    "@ensdomains/l1-verifier": "0.0.0-feat-viem.20240822T231724706",
+    "@ensdomains/ens-contracts": "1.4.0-beta.1",
+    "@unruggable/gateways": "0.1.5",
     "@eth-optimism/contracts": "^0.6.0"
   }
 }

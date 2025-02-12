@@ -1,30 +1,18 @@
-import { CcipReadRouter } from '@ensdomains/ccip-read-router';
-import { EVMGateway } from '@ensdomains/evm-gateway';
-import { L1ProofService } from '@ensdomains/l1-gateway';
+import { serve } from '@resolverworks/ezccip/serve';
+import { EthSelfRollup, Gateway } from '@unruggable/gateways';
 import { createAnvil } from '@viem/anvil';
-import { createServerAdapter } from '@whatwg-node/server';
 import { fork } from 'child_process';
-import { createServer } from 'http';
-import { createClient, http } from 'viem';
-
-const SERVER_PORT = 3001;
+import { JsonRpcProvider } from 'ethers';
 
 const anvil = createAnvil();
-
 await anvil.start();
 
-const client = createClient({
-  transport: http(`http://${anvil.host}:${anvil.port}`),
-});
-const proofService = new L1ProofService(client);
-const gateway = new EVMGateway(proofService);
+const provider = new JsonRpcProvider(`http://${anvil.host}:${anvil.port}`);
 
-const router = CcipReadRouter();
-gateway.add(router);
-const ccipReadServer = createServerAdapter(router.fetch);
-
-const httpServer = createServer(ccipReadServer);
-httpServer.listen(SERVER_PORT);
+const rollup = new EthSelfRollup(provider);
+rollup.latestBlockTag = 'latest';
+const gateway = new Gateway(rollup);
+const ccip = await serve(gateway, { protocol: 'raw', log: true });
 
 console.log('Starting hardhat');
 const code = await new Promise((resolve) => {
@@ -36,7 +24,9 @@ const code = await new Promise((resolve) => {
       env: {
         NODE_OPTIONS: '--experimental-loader ts-node/esm/transpile-only',
         RPC_PORT: anvil.port.toString(),
-        SERVER_PORT: SERVER_PORT.toString(),
+        SERVER_PORT: ccip.port.toString(),
+        ROLLUP_DEFAULT_WINDOW: rollup.defaultWindow.toString(),
+        TESTS_PATH: './test',
       },
     }
   );
@@ -44,6 +34,5 @@ const code = await new Promise((resolve) => {
 });
 
 console.log('Shutting down');
-httpServer.close();
-anvil.stop();
+await Promise.all([ccip.shutdown(), anvil.stop()]);
 process.exit(code);
