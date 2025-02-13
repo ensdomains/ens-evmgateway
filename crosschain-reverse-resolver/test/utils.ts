@@ -20,10 +20,13 @@ type ReverseNodeOptions =
       coinType: number | bigint;
     };
 
+export const getReverseLabelByChainId = (chainId: number | bigint) =>
+  evmChainIdToCoinType(Number(chainId)).toString(16);
+
 export const getReverseNamespace = (opts: ReverseNodeOptions) => {
   const base = '.reverse';
   if ('chainId' in opts)
-    return `${evmChainIdToCoinType(Number(opts.chainId)).toString(16)}${base}`;
+    return `${getReverseLabelByChainId(opts.chainId)}${base}`;
   if ('coinType' in opts) return `${opts.coinType.toString(16)}${base}`;
   return `${opts.ns ?? 'addr'}${base}`;
 };

@@ -25,6 +25,7 @@
     "@nomicfoundation/hardhat-viem": "^2.0.6",
     "@openzeppelin/contracts": "5.1.0",
     "@resolverworks/ezccip": "0.0.20",
+    "@safe-global/protocol-kit": "^5.2.2",
     "@viem/anvil": "^0.0.10",
     "@vitest/expect": "1.6.0",
     "@whatwg-node/server": "^0.9.49",

@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 import 'hardhat-storage-layout';
 import './tasks/esm_fix.cjs';
 import './tasks/getname.cjs';
+import './tasks/set_resolvers.cjs';
 import './tasks/transaction.cjs';
 
 dotenv.config();
