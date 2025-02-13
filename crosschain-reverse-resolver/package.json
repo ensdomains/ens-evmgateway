@@ -8,7 +8,7 @@
     "build": "echo 'building crosschain-reverse-resolver' && bun hh compile",
     "test:e2e": "node scripts/test.js",
     "test:unit": "bun hh test",
-    "test": "bun test:unit && bun test:e2e",
+    "test": "bun test:e2e",
     "storage": "hardhat check",
     "setname": "hardhat run scripts/setname.ts",
     "setdefaultname": "hardhat run scripts/setdefaultname.ts --network sepolia",
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@ensdomains/address-encoder": "^1.1.2",
     "@ensdomains/ccip-read-router": "^0.0.5",
-    "@ensdomains/hardhat-chai-matchers-viem": "^0.0.9",
+    "@ensdomains/hardhat-chai-matchers-viem": "^0.0.10",
     "@ensdomains/hardhat-toolbox-viem-extended": "0.0.3",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@nomicfoundation/hardhat-viem": "^2.0.6",

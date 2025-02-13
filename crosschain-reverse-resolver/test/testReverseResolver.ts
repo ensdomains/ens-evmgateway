@@ -8,11 +8,9 @@ import {
   decodeFunctionResult,
   encodeFunctionData,
   getContract,
-  keccak256,
   labelhash,
   namehash,
   parseAbi,
-  stringToBytes,
   testActions,
   walletActions,
   zeroHash,
@@ -133,7 +131,7 @@ async function fixture() {
     ensRegistry.address,
     l1Verifier.address,
     l2ReverseRegistrar.address,
-    keccak256(stringToBytes(namespace)),
+    dnsEncodeName(namespace),
     [`http://0.0.0.0:${process.env.SERVER_PORT}`],
   ]);
 
@@ -202,8 +200,19 @@ async function fixture() {
 }
 
 const nameAbi = parseAbi(['function name(bytes32 node) view returns (string)']);
+const addrAbi = parseAbi([
+  'function addr(bytes32 node, uint256 coinType) view returns (bytes)',
+]);
 
 describe('ReverseResolver', () => {
+  shouldSupportInterfaces({
+    contract: () => loadFixture(fixture).then((f) => f.l1ReverseResolver),
+    interfaces: [
+      'IExtendedResolver',
+      '@openzeppelin/contracts/utils/introspection/IERC165.sol:IERC165',
+    ],
+  });
+
   it('should resolve name that is set on l2', async () => {
     const { accountWithL2Name, l1ReverseResolver } = await loadFixture(fixture);
 
@@ -278,11 +287,119 @@ describe('ReverseResolver', () => {
     expect(decodedResult).toBe('');
   });
 
-  shouldSupportInterfaces({
-    contract: () => loadFixture(fixture).then((f) => f.l1ReverseResolver),
-    interfaces: [
-      'IExtendedResolver',
-      '@openzeppelin/contracts/utils/introspection/IERC165.sol:IERC165',
-    ],
+  it('should resolve addr() of this resolver', async () => {
+    const { l1ReverseResolver, l2ReverseRegistrar } =
+      await loadFixture(fixture);
+
+    const dnsEncodedNamespace = dnsEncodeName(namespace);
+    const addrCalldata = encodeFunctionData({
+      abi: addrAbi,
+      functionName: 'addr',
+      args: [namehash(zeroHash), 0n],
+    });
+
+    const result = await l1ReverseResolver.read.resolve([
+      dnsEncodedNamespace,
+      addrCalldata,
+    ]);
+    const decodedResult = decodeFunctionResult({
+      abi: addrAbi,
+      functionName: 'addr',
+      data: result,
+    });
+
+    expect(decodedResult).toBe(l2ReverseRegistrar.address);
+  });
+
+  it('should resolve null for namspace name() call', async () => {
+    const { l1ReverseResolver } = await loadFixture(fixture);
+
+    const encodedL2ReverseName = dnsEncodeName(namespace);
+    const nameCalldata = encodeFunctionData({
+      abi: nameAbi,
+      functionName: 'name',
+      args: [namehash(namespace)],
+    });
+
+    const result = await l1ReverseResolver.read.resolve([
+      encodedL2ReverseName,
+      nameCalldata,
+    ]);
+    const decodedResult = decodeFunctionResult({
+      abi: nameAbi,
+      functionName: 'name',
+      data: result,
+    });
+
+    expect(decodedResult).toBe('');
+  });
+
+  it('should resolve null for other addr() calls', async () => {
+    const { accountWithL2Name, l1ReverseResolver } = await loadFixture(fixture);
+
+    const reverseNode = getNamespacedReverseNode(accountWithL2Name.address);
+    const encodedL2ReverseName = dnsEncodeName(reverseNode);
+    const addrCalldata = encodeFunctionData({
+      abi: addrAbi,
+      functionName: 'addr',
+      args: [namehash(zeroHash), 0n],
+    });
+
+    const result = await l1ReverseResolver.read.resolve([
+      encodedL2ReverseName,
+      addrCalldata,
+    ]);
+    const decodedResult = decodeFunctionResult({
+      abi: addrAbi,
+      functionName: 'addr',
+      data: result,
+    });
+
+    expect(decodedResult).toBe('0x');
+  });
+
+  it('should revert with Unreachable if the label is not the correct length', async () => {
+    const { l1ReverseResolver } = await loadFixture(fixture);
+
+    const reverseNode = getNamespacedReverseNode('0x12345678');
+    const encodedL2ReverseName = dnsEncodeName(reverseNode);
+    const nameCalldata = encodeFunctionData({
+      abi: nameAbi,
+      functionName: 'name',
+      args: [namehash(reverseNode)],
+    });
+
+    await expect(l1ReverseResolver)
+      .read('resolve', [encodedL2ReverseName, nameCalldata])
+      .toBeRevertedWithCustomError('Unreachable')
+      .withArgs(encodedL2ReverseName);
+  });
+  it('should revert with Unreachable if the namespace is incorrect', async () => {
+    const { l1ReverseResolver } = await loadFixture(fixture);
+
+    const encodedL2ReverseName = dnsEncodeName(
+      getReverseNamespace({ chainId: 25 })
+    );
+    const nameCalldata = encodeFunctionData({
+      abi: nameAbi,
+      functionName: 'name',
+      args: [namehash(namespace)],
+    });
+
+    await expect(l1ReverseResolver)
+      .read('resolve', [encodedL2ReverseName, nameCalldata])
+      .toBeRevertedWithCustomError('Unreachable')
+      .withArgs(encodedL2ReverseName);
+  });
+  it('should revert with UnknownResolverProfile if the selector is not supported', async () => {
+    const { l1ReverseResolver } = await loadFixture(fixture);
+
+    const encodedL2ReverseName = dnsEncodeName(namespace);
+    const unsupportedSelector = '0x12345678';
+
+    await expect(l1ReverseResolver)
+      .read('resolve', [encodedL2ReverseName, unsupportedSelector])
+      .toBeRevertedWithCustomError('UnknownResolverProfile')
+      .withArgs(unsupportedSelector);
   });
 });

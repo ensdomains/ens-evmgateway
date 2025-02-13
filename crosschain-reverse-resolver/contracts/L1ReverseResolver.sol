@@ -23,10 +23,6 @@ contract L1ReverseResolver is
 {
     using GatewayFetcher for GatewayRequest;
 
-    /// @notice The namehash of 'default.reverse'
-    bytes32 constant DEFAULT_REVERSE_NODE =
-        0x53a2e7cce84726721578c676b4798972d354dd7c62c832415371716693edd312;
-
     /// @notice The ENS registry contract.
     ENS immutable ens;
 
@@ -40,6 +36,13 @@ contract L1ReverseResolver is
     ///         NOT using the ENS namehash algorithm
     bytes32 internal immutable _dnsEncodedReverseNameHash;
 
+    /// @notice The length of the DNS encoded reverse name.
+    uint256 internal immutable _dnsEncodedReverseNameLength;
+
+    /// @notice The namehash of 'default.reverse'
+    bytes32 constant DEFAULT_REVERSE_NODE =
+        0x53a2e7cce84726721578c676b4798972d354dd7c62c832415371716693edd312;
+
     /// @notice Storage slot for the names mapping in the target registrar contract.
     uint256 internal constant NAMES_SLOT = 0;
 
@@ -52,26 +55,33 @@ contract L1ReverseResolver is
     /// @notice Emitted when the gateway URLs are changed.
     event GatewayURLsChanged(string[] urls);
 
+    /// @notice Thrown when the name is not reachable in this resolver's namespace.
+    error Unreachable(bytes name);
+
+    /// @notice Thrown when the resolver profile is unknown.
+    error UnknownResolverProfile(bytes4 selector);
+
     /// @notice Sets the initial state of the contract.
     ///
     /// @param owner_ The owner of the contract, able to modify the gateway URLs.
     /// @param ens_ The ENS registry contract.
     /// @param verifier_ The gateway verifier contract, unique to each L2 chain.
     /// @param target_ The target registrar contract on the L2 chain.
-    /// @param dnsEncodedReverseNameHash_ A keccak256 hash of the DNS encoded reverse name.
+    /// @param dnsEncodedReverseName_ The DNS encoded reverse name.
     /// @param urls_ The verifier gateway URLs.
     constructor(
         address owner_,
         ENS ens_,
         IGatewayVerifier verifier_,
         address target_,
-        bytes32 dnsEncodedReverseNameHash_,
+        bytes memory dnsEncodedReverseName_,
         string[] memory urls_
     ) Ownable(owner_) {
         ens = ens_;
         verifier = verifier_;
         target = target_;
-        _dnsEncodedReverseNameHash = dnsEncodedReverseNameHash_;
+        _dnsEncodedReverseNameHash = keccak256(dnsEncodedReverseName_);
+        _dnsEncodedReverseNameLength = dnsEncodedReverseName_.length;
         _urls = urls_;
     }
 
@@ -103,7 +113,18 @@ contract L1ReverseResolver is
         bytes calldata data
     ) external view returns (bytes memory result) {
         bytes4 selector = bytes4(data);
+
+        bool isNamespaceCall = keccak256(name) == _dnsEncodedReverseNameHash;
+        if (!isNamespaceCall) {
+            if (
+                name.length != _dnsEncodedReverseNameLength + ADDRESS_LENGTH + 1
+            ) revert Unreachable(name);
+            if (keccak256(name[41:]) != _dnsEncodedReverseNameHash)
+                revert Unreachable(name);
+        }
+
         if (selector == INameResolver.name.selector) {
+            if (isNamespaceCall) return abi.encode('');
             (address addr, ) = HexUtils.hexToAddress(
                 name,
                 1,
@@ -111,13 +132,12 @@ contract L1ReverseResolver is
             );
             // Always throws, does not need to return.
             _fetchName(addr);
-        } else if (
-            selector == IAddrResolver.addr.selector ||
-            selector == IAddressResolver.addr.selector
-        ) {
-            if (keccak256(name) == _dnsEncodedReverseNameHash)
-                return abi.encode(target);
+        } else if (selector == IAddressResolver.addr.selector) {
+            if (isNamespaceCall) return abi.encode(abi.encodePacked(target));
+            return abi.encode('');
         }
+
+        revert UnknownResolverProfile(selector);
     }
 
     /// @notice Callback function, called by the verifier contract.

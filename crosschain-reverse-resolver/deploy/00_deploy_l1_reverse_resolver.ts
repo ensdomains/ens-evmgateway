@@ -1,5 +1,4 @@
 import type { DeployFunction } from 'hardhat-deploy/types.js';
-import { keccak256 } from 'viem';
 import {
   arbitrumSepolia,
   baseSepolia,
@@ -17,45 +16,41 @@ const owners = {
   [mainnet.id]: '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7',
 } as const;
 
-const getDnsEncodedReverseNameHash = (chainId: number) => {
+const getDnsEncodedReverseName = (chainId: number) => {
   const namespace = getReverseNamespace({
     chainId,
   });
-  return keccak256(dnsEncodeName(namespace));
+  return dnsEncodeName(namespace);
 };
 
 const targets = {
   [sepolia.id]: {
     Base: {
-      dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(baseSepolia.id),
+      dnsEncodedReverseName: getDnsEncodedReverseName(baseSepolia.id),
       verifier: '0x8e77b311bed6906799BD3CaFBa34c13b64CAF460',
       target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=base-sepolia'],
     },
     Optimism: {
-      dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(
-        optimismSepolia.id
-      ),
+      dnsEncodedReverseName: getDnsEncodedReverseName(optimismSepolia.id),
       verifier: '0x5F1681D608e50458D96F43EbAb1137bA1d2A2E4D',
       target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=optimism-sepolia'],
     },
     Arbitrum: {
-      dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(
-        arbitrumSepolia.id
-      ),
+      dnsEncodedReverseName: getDnsEncodedReverseName(arbitrumSepolia.id),
       verifier: '0x9133D1A6409b25546147229E102DFa439048028F',
       target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=arbitrum-sepolia'],
     },
     Scroll: {
-      dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(scrollSepolia.id),
+      dnsEncodedReverseName: getDnsEncodedReverseName(scrollSepolia.id),
       verifier: '0xd6eaADB25D5145c3b0407341292720Efd798a51f',
       target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=scroll-sepolia'],
     },
     Linea: {
-      dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(lineaSepolia.id),
+      dnsEncodedReverseName: getDnsEncodedReverseName(lineaSepolia.id),
       verifier: '0x6AD2BbEE28e780717dF146F59c2213E0EB9CA573',
       target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=linea-sepolia'],
@@ -77,7 +72,7 @@ const func: DeployFunction = async function (hre) {
 
   for (const [
     chainName,
-    { verifier, target, urls, dnsEncodedReverseNameHash },
+    { verifier, target, urls, dnsEncodedReverseName },
   ] of Object.entries(targetsForChain)) {
     await viem.deploy(
       'L1ReverseResolver',
@@ -86,7 +81,7 @@ const func: DeployFunction = async function (hre) {
         ensRegistryAddress,
         verifier,
         target,
-        dnsEncodedReverseNameHash,
+        dnsEncodedReverseName,
         urls,
       ],
       {
