@@ -29,7 +29,7 @@ const targets = {
     Base: {
       dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(baseSepolia.id),
       verifier: '0x8e77b311bed6906799BD3CaFBa34c13b64CAF460',
-      target: '0xa12159e5131b1eEf6B4857EEE3e1954744b5033A',
+      target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=base-sepolia'],
     },
     Optimism: {
@@ -37,7 +37,7 @@ const targets = {
         optimismSepolia.id
       ),
       verifier: '0x5F1681D608e50458D96F43EbAb1137bA1d2A2E4D',
-      target: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
+      target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=optimism-sepolia'],
     },
     Arbitrum: {
@@ -45,19 +45,19 @@ const targets = {
         arbitrumSepolia.id
       ),
       verifier: '0x9133D1A6409b25546147229E102DFa439048028F',
-      target: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
+      target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=arbitrum-sepolia'],
     },
     Scroll: {
       dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(scrollSepolia.id),
       verifier: '0xd6eaADB25D5145c3b0407341292720Efd798a51f',
-      target: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
+      target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=scroll-sepolia'],
     },
     Linea: {
       dnsEncodedReverseNameHash: getDnsEncodedReverseNameHash(lineaSepolia.id),
       verifier: '0x6AD2BbEE28e780717dF146F59c2213E0EB9CA573',
-      target: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
+      target: '0x00000BeEF055f7934784D6d81b6BC86665630dbA',
       urls: ['https://lb.drpc.org/gateway/unruggable?network=linea-sepolia'],
     },
   },
