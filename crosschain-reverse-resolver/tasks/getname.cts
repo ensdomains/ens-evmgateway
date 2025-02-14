@@ -11,11 +11,14 @@ config
   .task('get-name', 'Gets the name for an address')
   .addPositionalParam('chain', 'Chain to get the name for')
   .addPositionalParam('address', 'Address to get the name for')
+  .addOptionalParam('gatewayUrl', 'Gateway URL to use for offchain lookup')
   .setAction(async (args, hre) => {
     const { getReverseNode, dnsEncodeName } = await import('../test/utils.js');
 
     const address = args.address as Address;
     const chainName = args.chain as string;
+    const gatewayUrl = args.gatewayUrl as string | undefined;
+    if (gatewayUrl) console.log('Using Gateway URL:', gatewayUrl);
 
     const baseChainName = chainName.toLowerCase();
     const contractChainName = baseChainName.replace(/^\w/, (c) =>
@@ -28,8 +31,40 @@ config
 
     if (!targetChainId) throw new Error(`Chain ${targetChainName} not found`);
 
+    const existingClient = await hre.viem.getPublicClient();
     const l1ReverseResolver = await hre.viem.getContract(
-      `${contractChainName}L1ReverseResolver` as 'L1ReverseResolver'
+      `${contractChainName}L1ReverseResolver` as 'L1ReverseResolver',
+      gatewayUrl
+        ? {
+            public: viem.createPublicClient({
+              transport: viem.custom(existingClient.transport),
+              ccipRead: {
+                request: async (params) => {
+                  console.log('CCIP-Read Request details:');
+                  console.log('URLs:', params.urls);
+                  console.log(
+                    'Data:',
+                    params.data.length > 100
+                      ? params.data.slice(0, 100) + '...'
+                      : params.data
+                  );
+                  console.log('Sender:', params.sender);
+                  const startTime = performance.now();
+                  const result = await viem.ccipRequest({
+                    ...params,
+                    urls: [gatewayUrl],
+                  });
+                  const endTime = performance.now();
+                  const duration = endTime - startTime;
+                  console.log(
+                    `CCIP-Read completed in ${duration.toFixed(2)}ms`
+                  );
+                  return result;
+                },
+              },
+            }),
+          }
+        : undefined
     );
 
     const reverseNode = getReverseNode(address, {
