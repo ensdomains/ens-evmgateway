@@ -1,45 +1,38 @@
-const { fork } = require('node:child_process');
-const ganache = require('ganache');
-const options = {
-  logging: {
-    quiet: true,
-  },
-};
+import { serve } from '@resolverworks/ezccip/serve';
+import { EthSelfRollup, Gateway } from '@unruggable/gateways';
+import { createAnvil } from '@viem/anvil';
+import { fork } from 'child_process';
+import { JsonRpcProvider } from 'ethers';
 
-async function main() {
-  const server = ganache.server(options);
-  console.log('Starting server');
-  const port = await new Promise((resolve, reject) => {
-    server.listen(0, async (err) => {
-      console.log(`Listening on port ${server.address().port}`);
-      if (err) reject(err);
-      resolve(server.address().port);
-    });
-  });
+const anvil = createAnvil();
+await anvil.start();
 
-  console.log('Starting hardhat');
-  const code = await new Promise((resolve) => {
-    const hh = fork(
-      '../node_modules/.bin/hardhat',
-      ['test', '--network', 'ganache'],
-      {
-        stdio: 'inherit',
-        env: {
-          RPC_PORT: port.toString(),
-        },
-      }
-    );
-    hh.on('close', (code) => resolve(code));
-  });
+const provider = new JsonRpcProvider(`http://${anvil.host}:${anvil.port}`);
 
-  console.log('Shutting down');
-  server.close();
-  process.exit(code);
-}
+const rollup = new EthSelfRollup(provider);
+rollup.latestBlockTag = 'latest';
+const gateway = new Gateway(rollup);
+const ccip = await serve(gateway, { protocol: 'raw', log: true });
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+console.log('Starting hardhat');
+const code = await new Promise((resolve) => {
+  const hh = fork(
+    '../node_modules/.bin/hardhat',
+    ['test', '--network', 'anvil'],
+    {
+      stdio: 'inherit',
+      env: {
+        NODE_OPTIONS: '--experimental-loader ts-node/esm/transpile-only',
+        RPC_PORT: anvil.port.toString(),
+        SERVER_PORT: ccip.port.toString(),
+        ROLLUP_DEFAULT_WINDOW: rollup.defaultWindow.toString(),
+        TESTS_PATH: './test',
+      },
+    }
+  );
+  hh.on('close', (c) => resolve(c ?? 0));
 });
+
+console.log('Shutting down');
+await Promise.all([ccip.shutdown(), anvil.stop()]);
+process.exit(code);

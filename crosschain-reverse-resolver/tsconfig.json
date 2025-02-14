@@ -1,14 +1,22 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["./scripts", "./test"],
-  "files": ["hardhat.config.ts"],
+  "include": ["./scripts", "./test/**/*", "./artifacts", "./tasks", "deploy"],
+  "files": ["hardhat.config.cts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "skipLibCheck": true
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleDetection": "force",
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true
+  },
+  "ts-node": {
+    "experimentalResolver": true,
+    "experimentalSpecifierResolution": "node",
+    "files": true
   }
 }

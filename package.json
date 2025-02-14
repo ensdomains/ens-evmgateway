@@ -9,8 +9,8 @@
   "scripts": {
     "env": "env",
     "workspace": "bun ./scripts/workspace.ts",
-    "build": "bun run workspace crosschain-resolver build && bun run workspace crosschain-reverse-resolver build",
-    "test": "bun run workspace crosschain-resolver test && bun run workspace crosschain-reverse-resolver test",
+    "build": "bun run workspace crosschain-reverse-resolver build",
+    "test": "bun run workspace crosschain-reverse-resolver test",
     "lint": "bun run workspace all lint",
     "prepare": "husky install"
   },
@@ -29,8 +29,8 @@
     "url": "https://github.com/ensdomains/evm-l2-gateway/issues"
   },
   "homepage": "https://github.com/ensdomains/evm-l2-gateway#readme",
-  "resolutions": {
-    "@eth-optimism/sdk/**/ethers": "^5.7.0"
+  "overrides": {
+    "chai": "5.1.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -46,5 +46,8 @@
   "dependencies": {
     "@ensdomains/ccip-read-cf-worker": "^0.0.3",
     "@eth-optimism/sdk": "^3.1.4"
+  },
+  "patchedDependencies": {
+    "hardhat-deploy@0.12.4": "patches/hardhat-deploy@0.12.4.patch"
   }
 }
